@@ -78,6 +78,7 @@ enum class NodeField : std::uint8_t
     Value,
     Op,
     Result, ReturnType, TypeParameters,
+    Imports, Module, Record,
     Count
 };
 
@@ -111,6 +112,7 @@ inline constexpr std::array<NodeFieldName, kNodeFieldCount> kNodeFieldNames = { 
     { NodeField::Type, "type", 4 },                   { NodeField::Update, "update", 6 },               { NodeField::Value, "value", 5 },
     { NodeField::Op, "op", 2 },
     { NodeField::Result, "result", 6 },               { NodeField::ReturnType, "return_type", 11 },     { NodeField::TypeParameters, "type_parameters", 15 },
+    { NodeField::Imports, "imports", 7 },             { NodeField::Module, "module", 6 },               { NodeField::Record, "record", 6 },
 } };
 
 // ORDER, COUNT AND LENGTH, checked at compile time. The old assert compared kNodeFieldNames.size() with the extent the
@@ -139,7 +141,7 @@ static_assert( firstNodeFieldRowOutOfPlace() == kNodeFieldCount,
 // SoA, not a map: the scan reads ONLY the grammar pointers, so they live in their own contiguous array
 // and the id blocks never share a cache line with them.
 //
-// THE CAPACITY IS NOT A SILENT CAP. It is 64 against 26 distinct grammars over 55 extension rows today,
+// THE CAPACITY IS NOT A SILENT CAP. It is 64 against 26 distinct grammars over 58 extension rows today,
 // and ingest_crawl.h carries a static_assert that the crawl table's ROW count — an upper bound on its
 // distinct-grammar count — fits here, so a 65th language is a COMPILE error rather than a run that is
 // quietly slower. test/fieldidcheck.sh arm F is the second guard, on the distinct count. The runtime

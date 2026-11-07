@@ -19,6 +19,7 @@
 #include "prconverge.h"          // RankDisclosure — the power iteration's own account, carried with its result
 #include "smallvec.h"            // rw::SmallVec — THE ONE ALIAS (src/smallvec.h picks the implementation)
 #include "resolve.h"             // P2-D one-hop type narrowing (Rule 1: class membership) — applied before the name-based fallback
+#include "gleam_resolve.h"       // lexical module/name resolution through the import Step-A (resolve.h)
 #include "receiverevidence.h"    // FE-B: typed receivers RESOLVE; a call nothing proves keeps its rows marked via="name"
 #include "ifacedispatch.h"       // lane L6: a call on an interface-typed receiver names its implementors' methods (BaseBound)
 #include "langfacts.h"           // langFacts(l): the per-language facts the resolver reads instead of a Lang:: compare
@@ -9675,6 +9676,7 @@ inline Graph buildGraph( const IngestResult& ing, const ScipOverlay* scip = null
     const HashMap<std::string, rw::SmallVec<NodeId, 2>> javaTypeMembers = buildJavaTypeMembers( ing );
     const Narrower javaNarrower( javaTypeMembers, varType, scopedRecvDecls, fileIncludes, symFileId, usingReexports );
     const ElixirResolver elixirResolver( ing );
+    const GleamResolver  gleamResolver( ing, includeContext.fileRoot ? &includeContext : nullptr );
     // ONE apply step for every receiver rule (1 / 2 / 2c / 2b): keep the rule's definition ids that are
     // language-compatible with the call and inside the same root, and say whether anything survived. The
     // four rules used to carry four copies of this loop; the filter is stated once so it cannot drift.
@@ -11225,12 +11227,28 @@ inline Graph buildGraph( const IngestResult& ing, const ScipOverlay* scip = null
 
         // ---- name-based resolution (the fallback ladder below + P2-D narrowing) — SKIPPED when the SCIP overlay pinned this site.
         bool canonical = false;
-        if( !scipPinned && r.lang == Lang::Elixir )
+        if( !scipPinned && ( r.lang == Lang::Elixir || r.lang == Lang::Gleam ) )
         {
-            elixirResolver.resolve( r, cand );
+            const GleamResolver::Miss gleamMiss = r.lang == Lang::Gleam ? gleamResolver.resolve( ing, r, cand ) : GleamResolver::Miss::None;
+            if( r.lang == Lang::Elixir )
+            {
+                elixirResolver.resolve( r, cand );
+            }
             std::erase_if( cand, [ & ]( NodeId c ) { return !sameRoot( c, r.fileId ); } );
+            if( cand.empty() && gleamMiss == GleamResolver::Miss::ExternalModule )
+            {
+                disposition = vetoExternal( r );   // a Gleam module no indexed file defines (`gleam/list`): external=, never the ladder
+                continue;
+            }
+            if( cand.empty() && gleamMiss == GleamResolver::Miss::LocalField )
+            {
+                disposition = CallDisposition::Undefined;   // a Gleam local's record field, read through its module's name: no call
+                continue;
+            }
             if( cand.empty() )
             {
+                // Gleam takes the same refusal (gleam_resolve.h): its module and name are both decided lexically, so a
+                // miss in an indexed module is a wrong name or a shadowed local, and a namesake elsewhere is never the target.
                 // No lexical fact answers this call: no alias, import or receiver names a definition of its
                 // module/name/arity. The commonest reason is a `use` — `__using__` injects imports the tool
                 // does not expand (docs/ARCHITECTURE.md, Elixir extraction) — and the next is a wrong arity or

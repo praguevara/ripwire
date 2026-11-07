@@ -248,6 +248,15 @@ ImportSpec normalisePythonImport( TSNode directive, std::string_view raw, std::s
     return { std::string( raw ) };
 }
 
+// ── DepDialect::Gleam ────────────────────────────────────────────────────────────────────────────────
+// The capture is an import's `module:` (`palimpsest_core/fight/board`): the module PATH resolve.h's Gleam Step-A probes
+// for, verbatim. Its alias and its unqualified names decide references, not the dependency record, so ingest_gleam.h
+// reads them and this arm does not.
+ImportSpec normaliseGleamImport( std::string_view raw )
+{
+    return { std::string( raw ) };
+}
+
 // ── the dispatch: ONE normaliser per DepDialect ──────────────────────────────────────────────────────
 // CFamily, Web, Go and Python are the dialects that have moved over so far; every other arm returns an empty ImportSpec,
 // which is what makes the capture INERT rather than wrong on a language whose tags.scm has not adopted
@@ -261,6 +270,7 @@ ImportSpec normaliseImportSpecifier( DepDialect dialect, TSNode directive, std::
         case DepDialect::Web:     return normaliseWebImport( directive, raw, src );
         case DepDialect::Go:      return normaliseGoImport( directive, src );
         case DepDialect::Python:  return normalisePythonImport( directive, raw, src );
+        case DepDialect::Gleam:   return normaliseGleamImport( raw );
         default:                  return {};   // no other language captures @import.path yet
     }
 }
@@ -276,6 +286,7 @@ inline bool importsFromCapture( DepDialect dialect ) noexcept
         case DepDialect::Web:
         case DepDialect::Go:
         case DepDialect::Python:
+        case DepDialect::Gleam:
             return true;
         default:
             return false;

@@ -174,6 +174,7 @@ extern "C"
     const TSLanguage* tree_sitter_kotlin( void );
     const TSLanguage* tree_sitter_gdscript( void );
     const TSLanguage* tree_sitter_clojure( void );
+    const TSLanguage* tree_sitter_gleam( void );
 }
 
 // ── the ingest-family sections (2026-08-29 split; ingest() phases followed 2026-08-30) ──────────────
@@ -203,6 +204,7 @@ extern "C"
 #include "ingest_inert.h"
 #include "ingest_elixir.h"
 #include "ingest_clojure.h"
+#include "ingest_gleam.h"
 #include "ingest_ruby.h"      // Ruby Rails/DSL capture lane (schema columns, Jbuilder typing, factories, class-side DSL walks) - carved verbatim 2026-10-12
 #include "ingest_importcap.h"
 #include "ingest_valuerefs.h"

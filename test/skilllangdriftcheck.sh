@@ -90,7 +90,7 @@ if mode == "crawl":
     HELP_NAMES = {"Cpp": ["C++", "Metal", "CUDA"], "C": ["C"], "ObjC": ["ObjC", "ObjC++"], "Python": ["Python"],
                   "TypeScript": ["TypeScript"], "JavaScript": ["JavaScript"], "Java": ["Java"], "Ruby": ["Ruby"],
                   "Php": ["PHP"], "Lua": ["Lua"], "Elixir": ["Elixir"], "Dart": ["Dart"], "Kotlin": ["Kotlin"],
-                  "Clojure": ["Clojure"], "Bash": ["Bash"], "Go": ["Go"], "Rust": ["Rust"], "Swift": ["Swift"],
+                  "Clojure": ["Clojure"], "Gleam": ["Gleam"], "Bash": ["Bash"], "Go": ["Go"], "Rust": ["Rust"], "Swift": ["Swift"],
                   "CSharp": ["C#"], "GDScript": ["GDScript"], "Json": ["JSON"], "Toml": ["TOML"], "Yaml": ["YAML"],
                   "Markdown": ["Markdown"]}
     src = open(files[0], encoding="utf-8", errors="replace").read()
@@ -181,7 +181,7 @@ PY
 # ── (A) the Languages line parses ───────────────────────────────────────────────────────────────────────────
 python3 -I "$T/check.py" "$T/help.txt" names >"$T/names.txt"
 nn="$( wc -l <"$T/names.txt" | tr -d ' ' )"
-miss=""; for want in PHP Kotlin Elixir Lua Dart GDScript Clojure CUDA TOML YAML Markdown 'C#' Go; do
+miss=""; for want in PHP Kotlin Elixir Lua Dart GDScript Clojure Gleam CUDA TOML YAML Markdown 'C#' Go; do
     grep -qxF "$want" "$T/names.txt" || miss="$miss $want"; done
 { [ "${nn:-0}" -ge 20 ] && [ -z "$miss" ]; } \
     && ok "(A) --help Languages line parses to $nn names, including the ones issue #521 named" \

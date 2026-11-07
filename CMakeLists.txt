@@ -305,6 +305,7 @@ set(_ripwire_query_names
   javascript
   json
   gdscript
+  gleam
   kotlin
   lua
   objc
@@ -582,6 +583,12 @@ add_ts_grammar(gdscript https://github.com/PrestonKnopp/tree-sitter-gdscript.git
 # generated parser repeatedly stalled on the same corpus. CC0; no scanner.
 add_ts_grammar(clojure https://github.com/yogthos/tree-sitter-clojure.git 8ec8407eada5f29728d746a46cbe6115938b5422)  # v0.0.14, ABI 15
 
+# Gleam (.gleam): the gleam-lang organisation's own grammar, main after v1.1.0 (record update inside
+# constants). On 930 real files (palimpsest's core, the stdlib, otp, lustre, wisp, mist, the compiler's
+# language tests and the language tour) it parsed 927 (99.7%); the three failures are two lustre modules
+# and one deliberately exotic bit-array test. Apache-2.0; scanner.c is plain C.
+add_ts_grammar(gleam  https://github.com/gleam-lang/tree-sitter-gleam.git fa6d0d94804f1b342e175865a3dbeb316ee5115e)  # main, ABI 15
+
 # PHP (.php): the official tree-sitter org grammar. Like TypeScript this repo hosts TWO sub-grammars
 # in subdirectories — `php/` (the full one: HTML text interleaved with `<?php … ?>` blocks) and
 # `php_only/` (no surrounding text). ONLY `php/` is vendored and built: a real .php file in a real
@@ -688,6 +695,7 @@ set(RIPWIRE_TS_OBJECTS
   $<TARGET_OBJECTS:ts_kotlin>
   $<TARGET_OBJECTS:ts_gdscript>
   $<TARGET_OBJECTS:ts_clojure>
+  $<TARGET_OBJECTS:ts_gleam>
   $<TARGET_OBJECTS:ts_elixir>
   $<TARGET_OBJECTS:ts_php>
   $<TARGET_OBJECTS:ts_toml>
@@ -942,7 +950,7 @@ endif()
 set(RIPWIRE_GRAMMAR_TARGETS
   ts_cpp ts_python ts_go ts_rust ts_tsts ts_tstsx ts_swift ts_objc
   ts_javascript ts_bash ts_java ts_ruby ts_json ts_toml ts_yaml ts_csharp ts_c ts_cuda ts_markdown
-  ts_php ts_lua ts_elixir ts_dart ts_kotlin ts_gdscript ts_clojure)
+  ts_php ts_lua ts_elixir ts_dart ts_kotlin ts_gdscript ts_clojure ts_gleam)
 set(RIPWIRE_RUNTIME_COMPILE_TARGETS ripwire_probe ripwire tree-sitter ${RIPWIRE_GRAMMAR_TARGETS})
 set(RIPWIRE_RUNTIME_LINK_TARGETS ripwire_probe ripwire)
 # The C++ subset of the compile list — the only targets that include a C++ standard library at all, and so
@@ -1510,6 +1518,7 @@ if(RIPWIRE_FUZZ)
   add_ripwire_fuzzer(kotlin     tree_sitter_kotlin     kotlin)
   add_ripwire_fuzzer(gdscript   tree_sitter_gdscript   gdscript)
   add_ripwire_fuzzer(clojure    tree_sitter_clojure    clojure)
+  add_ripwire_fuzzer(gleam      tree_sitter_gleam      gleam)
   add_custom_target(ripwire_fuzzers DEPENDS ${RIPWIRE_FUZZ_TARGETS})
 
   # ---- reader fuzzers: ripwire's OWN parsers of bytes it did not create (test/fuzz/readers/) ----

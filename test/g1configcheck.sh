@@ -155,7 +155,7 @@ reply = pathlib.Path(sys.argv[1])
 index = json.loads(next(reply.glob('index-*.json')).read_text())
 model = json.loads((reply / index['reply']['codemodel-v2']['jsonFile']).read_text())
 expected = {'ripwire_fuzz_' + name for name in
-            'cpp python go rust typescript tsx swift objc javascript bash java ruby json toml yaml csharp c php elixir lua dart kotlin gdscript clojure'.split()}
+            'cpp python go rust typescript tsx swift objc javascript bash java ruby json toml yaml csharp c php elixir lua dart kotlin gdscript clojure gleam'.split()}
 cmake_text = pathlib.Path(sys.argv[2]).read_text()
 readers = cmake_text.split('set(RIPWIRE_FUZZ_READERS', 1)[1].split(')', 1)[0].split()
 expected_readers = {'ripwire_fuzz_reader_' + name for name in readers}

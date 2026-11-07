@@ -192,7 +192,7 @@ inline std::string lexicalNormalize( std::string_view path )
 // `#include`; Other (Swift/Java/C#/PHP/Markdown/…) never precise-resolves (deferred / no path in import).
 // Bash/Ruby/Lua/Elixir joined at kParserVer 81 — see their Step-As below. A language that gains a Step-A moves its
 // LangFacts::fileEdges to Resolved in the same commit (langfacts.h; test/archhonestcheck.sh (H) pins the fact to the index).
-enum class IncludeLang : std::uint8_t { CFamily, Python, Ts, Rust, Go, Bash, Ruby, Lua, Elixir, Other };
+enum class IncludeLang : std::uint8_t { CFamily, Python, Ts, Rust, Go, Bash, Ruby, Lua, Elixir, Gleam, Other };
 
 // extension → dialect, a declarative constexpr table (NOT a scattered if-chain). Extension includes the
 // leading dot; the classifier lowercases nothing (source extensions are lowercase by convention here).
@@ -231,6 +231,7 @@ inline IncludeLang includeLangOf( std::string_view path ) noexcept
         { ".rb",  IncludeLang::Ruby },    { ".rake", IncludeLang::Ruby },  { ".jbuilder", IncludeLang::Ruby },
         { ".lua", IncludeLang::Lua },
         { ".ex",  IncludeLang::Elixir },  { ".exs", IncludeLang::Elixir },
+        { ".gleam", IncludeLang::Gleam },
         // B6.2: `.cs` has NO entry here — it falls through to IncludeLang::Other below, DEFERRED like
         // Java (also absent) and Swift/Go-single-root: a C# namespace does not map 1:1 onto a file (one
         // namespace spans many files, one file can hold several namespaces), so there is no sound
@@ -2292,6 +2293,35 @@ inline std::uint32_t resolveLuaRequire( std::string_view includerPath, std::stri
     return p.result();
 }
 
+// ── Gleam Step-A — SOUND. A Gleam module path names one file of a package: `palimpsest_core/fight/board` is
+// `<package>/src/palimpsest_core/fight/board.gleam`, or the same path under the package's `test/` or `dev/` (the three
+// share one module namespace, so a package never holds two). The package directory is not knowable from the specifier,
+// so it is probed upward from the importer, as a Lua `require` is, unique-or-degrade: a module two packages of the
+// crawl both define resolves to neither. The crawl root itself is probed last, for a run rooted inside `src/`. A module
+// no indexed file defines (`gleam/list`, a Hex dependency) is EXTERNAL and yields no edge, like a bare Ruby `require`.
+// gleam_resolve.h reads the same answer for a module-qualified call, so a call and its import can never disagree.
+inline std::uint32_t resolveGleamModule( std::string_view includerPath, std::string_view target,
+                                         const HashMap<std::string, std::uint32_t>& fileIndex,
+                                         const WsIncludeCtx* ws = nullptr, std::uint32_t includerFileId = kNoFile )
+{
+    if( target.empty() || target.front() == '/' || target.find( ".." ) != std::string_view::npos )
+    {
+        return kNoFile;
+    }
+    const std::string file = std::string( target ) + ".gleam";
+    UniqueProbe p;
+    const std::string_view dir = includerDir( includerPath );
+    for( const std::string_view r : { std::string_view( "src/" ), std::string_view( "test/" ), std::string_view( "dev/" ) } )
+    {
+        probeUpward( dir, std::string( r ) + file, p, fileIndex, ws, includerFileId );
+    }
+    if( p.hit == kNoFile )
+    {
+        p.consider( joinNormalizeLookup( {}, file, fileIndex, ws, includerFileId ) );
+    }
+    return p.result();
+}
+
 // ── Ruby Step-A — SOUND. Two rules behind one spelling, told apart by a LEADING DOT (the extractor
 // normalizes `require_relative "x"` to `./x`; see ingest_relations.h::rubyRequireTarget):
 //   * a dotted specifier is relative to the requiring FILE — the exact analogue of a C quote-include;
@@ -3191,6 +3221,7 @@ inline std::uint32_t resolvePreciseInclude( std::string_view includerPath, std::
         case IncludeLang::Ruby:   return resolveRubyRequire( includerPath, target, fileIndex, ws, includerFileId );
         case IncludeLang::Lua:    return resolveLuaRequire(  includerPath, target, fileIndex, ws, includerFileId );
         case IncludeLang::Elixir: return resolveElixirModule( target, moduleIndex );
+        case IncludeLang::Gleam:  return resolveGleamModule( includerPath, target, fileIndex, ws, includerFileId );
         case IncludeLang::Other:  return kNoFile;        // Swift (no path in import) → deferred
     }
     return kNoFile;

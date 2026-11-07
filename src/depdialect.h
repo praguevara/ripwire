@@ -37,7 +37,7 @@ namespace rw
 // file genuinely imports a Java class and vice versa in a mixed Android/JVM module (graph.h's
 // langCompatible bridges the two for the same reason on the call-graph side) — a separate Kotlin dialect
 // would report a real cross-language import pair as "not defined" instead of "found none".
-enum class DepDialect : std::uint8_t { None = 0, CFamily, Web, Python, Rust, Go, Swift, Java, CSharp, Php, Bash, Ruby, Lua, Elixir };
+enum class DepDialect : std::uint8_t { None = 0, CFamily, Web, Python, Rust, Go, Swift, Java, CSharp, Php, Bash, Ruby, Lua, Elixir, Gleam };
 
 /// Return the dependency dialect of a language, or DepDialect::None when it carries no file dependency.
 inline DepDialect dependencyDialect( Lang lang ) noexcept
@@ -57,6 +57,7 @@ inline DepDialect dependencyDialect( Lang lang ) noexcept
         case Lang::Ruby:                                return DepDialect::Ruby;
         case Lang::Lua:                                 return DepDialect::Lua;
         case Lang::Elixir:                              return DepDialect::Elixir;
+        case Lang::Gleam:                               return DepDialect::Gleam;
         case Lang::Clojure:                             // no namespace/import extraction yet
         case Lang::Dart:                                // not dependency-capable (dependencyCapable's DART paragraph)
         case Lang::GDScript:                            // not dependency-capable (the same paragraph)

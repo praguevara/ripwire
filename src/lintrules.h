@@ -113,6 +113,7 @@ inline constexpr LangTokenRow kLangTokenRows[] = {
     { "gdscript",   Lang::GDScript   },
     { "clojure",    Lang::Clojure    },
     { "clj",        Lang::Clojure    },
+    { "gleam",      Lang::Gleam      },
 };
 
 /// Parse a supported language token; assign out only on success and otherwise return false.
@@ -173,6 +174,7 @@ inline constexpr LintExtRow kLintExtRows[] = {
     { ".kt", Lang::Kotlin },
     { ".gd", Lang::GDScript },
     { ".clj", Lang::Clojure }, { ".cljs", Lang::Clojure }, { ".cljc", Lang::Clojure }, { ".bb", Lang::Clojure },
+    { ".gleam", Lang::Gleam },
 };
 
 /// Classify a path by its supported extension, returning Unknown when no extension matches.
@@ -264,7 +266,7 @@ inline bool dependencyCapable( Lang lang ) noexcept
         case Lang::Rust: case Lang::Go: case Lang::Swift:
         case Lang::Java: case Lang::CSharp: case Lang::Php:
         case Lang::Bash: case Lang::Ruby: case Lang::Lua: case Lang::Elixir:
-        case Lang::Kotlin:
+        case Lang::Kotlin: case Lang::Gleam:
             return true;
         case Lang::Dart:   // no import capture yet — see the DART paragraph above
         case Lang::GDScript:   // no preload/load capture yet — the same paragraph

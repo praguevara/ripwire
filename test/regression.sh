@@ -568,6 +568,7 @@ for _g in \
     gitignorecheck \
     gitquotepathcheck \
     gitstampcheck \
+    gleamcheck \
     goinstcheck \
     gointerfacecheck \
     gokindcheck \

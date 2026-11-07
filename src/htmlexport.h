@@ -2167,6 +2167,7 @@ inline constexpr const char* kLangColors[] = {
                  // unused in this palette, so it stays separable on the #111 canvas — the same reasoning
                  // the Elixir and Kotlin rows above applied to the purples.
     "#63b132",   // Clojure — green, distinct from Bash's lighter yellow-green.
+    "#ffaff3",   // Gleam — the language's own "faff pink", unused elsewhere in this palette.
 };
 inline constexpr std::size_t kLangColorCount = sizeof( kLangColors ) / sizeof( kLangColors[0] );
 // NB the bound names the LAST enumerator, so appending one to Lang leaves this assert TRUE and silently
