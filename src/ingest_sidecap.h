@@ -1879,8 +1879,8 @@ void captureTagsFacts( TSQueryCursor* cursor, const LangEntry& le, std::uint32_t
     ElixirContext elixir;
     elixir.shortfall = &shortfall;
     if( le.lang == Lang::Elixir ) { elixir.prepare( cursor, query, root, src, fileId, binds, includes, refs ); }
-    GleamNames gleam;   // ingest_gleam.h: the imports and top-level names a Gleam reference is decided against
-    if( le.lang == Lang::Gleam ) { gleam.prepare( root, src ); }
+    GleamNames gleam;   // ingest_gleam.h: the imports and top-level names a Gleam reference is decided against (inert elsewhere)
+    gleam.prepare( le.lang, root, src );
 
     // extent honesty: the recovered-bit walk (parseRecoveredBits) only exists in a file the parser had to recover.
     const bool fileHasError = ts_node_has_error( root );
@@ -2290,7 +2290,7 @@ void captureTagsFacts( TSQueryCursor* cursor, const LangEntry& le, std::uint32_t
             // owns lives in a SIBLING node, so byte/row extents and complexity must run through it.
             const bool spanThroughBody = isTestMacroBlock || dartSiblingBody;
 
-            d.startByte = le.lang == Lang::Gleam ? gleam.startWithAttributes( defNode ) : ts_node_start_byte( defNode );   // a Gleam `@external(…)` run is a sibling
+            d.startByte = gleam.startWithAttributes( defNode );   // the node's start, or the start of a Gleam `@external(…)` run above it
             d.endByte   = spanThroughBody ? ts_node_end_byte( body ) : ts_node_end_byte( defNode );   // LB-E: the span runs THROUGH the sibling block
             d.nameByte  = nameByte;
             d.bodyByte  = ts_node_is_null( body ) ? 0u : ts_node_start_byte( body );
@@ -2545,7 +2545,7 @@ void captureTagsFacts( TSQueryCursor* cursor, const LangEntry& le, std::uint32_t
                 // invocation the grammar spells as one (Rust `name!(..)`): role Macro, so it binds only to an indexed macro of the name (graph.h).
                 r.role      = isImportRef ? RefRole::Import : ( refCapSv == "reference.macro" ? RefRole::Macro : RefRole::Call );
                 r.name      = finalSegment( nameTxt );
-                if( le.lang == Lang::Gleam && !gleam.qualify( r, nameNode, src ) )
+                if( gleam.active && !gleam.qualify( r, nameNode, src ) )
                 {
                     continue;   // a record field or a local: names no definition (ingest_gleam.h)
                 }
@@ -2602,7 +2602,7 @@ void captureTagsFacts( TSQueryCursor* cursor, const LangEntry& le, std::uint32_t
                     }
                 }
 
-                if( !isImportRef && le.lang != Lang::Elixir && le.lang != Lang::Gleam )   // an import site has no receiver and no argument list —
+                if( !isImportRef && le.lang != Lang::Elixir && !gleam.active )           // an import site has no receiver and no argument list —
                 {                                                                        //   the defaults (RecvKind::None, argCountKnown=false) are the truth
                     // FE-B: a Java method INVOCATION reads its receiver like every other language (a member call or a bare
                     // implicit-this call); only a method REFERENCE (`T::m`) keeps issue #74's type-candidate shape.

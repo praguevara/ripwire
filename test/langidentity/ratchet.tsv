@@ -22,5 +22,7 @@ ceiling	326
 perlang	ingest_elixir.h
 perlang	elixir_resolve.h
 perlang	ingest_clojure.h
+perlang	ingest_gleam.h
+perlang	gleam_resolve.h
 perlang	ingest_jsimports.h
 perlang	ingest_ruby.h

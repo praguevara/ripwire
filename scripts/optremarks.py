@@ -118,6 +118,8 @@ COLD_FILES = (
       "Elixir-specific capture helpers: per node, but for one grammar with a small corpus share. Same argument as ingest_jsimports.h above." ),
     ( "src/ingest_clojure.h",
       "Clojure-specific capture helpers: per query capture, but only for Clojure files. Same corpus-share argument as ingest_elixir.h above." ),
+    ( "src/ingest_gleam.h",
+      "Gleam's per-file name table: one pass over the root's children and one cursor walk per top-level function, only for Gleam files. Same corpus-share argument as ingest_elixir.h above." ),
     ( "src/ingest_ruby.h",
       "Ruby's Rails/DSL capture lane (schema columns, Jbuilder typing, the factory and class-side DSL walks): per node, but behind "
       "the contains-\"attr\" / contains-\"create_table\" per-file early-outs and one grammar family's corpus share. Same argument as "

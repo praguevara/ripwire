@@ -183,9 +183,14 @@ struct ElixirResolver
         return state.except.find( key ) == std::string::npos;
     }
 
+    // An Elixir reference's targets; any other language's reference has none here (graph.h asks each lexical resolver in turn).
     void resolve( const Reference& ref, std::vector<NodeId>& out ) const
     {
         out.clear();
+        if( ref.lang != Lang::Elixir )
+        {
+            return;
+        }
         const bool remote = ref.recv == RecvKind::ElixirModule || ref.recv == RecvKind::ElixirSelfModule;
         append( ref, ref.qualifier, remote, {}, out );
         if( remote ) { return; }

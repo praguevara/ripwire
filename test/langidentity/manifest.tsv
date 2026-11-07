@@ -4,7 +4,7 @@
 # one of them has at least one row, so a language appended to the enum without a row fails there.
 # Pure single-language directories only (a mixed directory would run its other languages' symbols under this tag).
 # One exception: test/kotlinfix holds a .java interop file; the top-5 pick filters by extension, so it stays Kotlin.
-# Fixture-only languages (no in-sample real repo): java kt swift cs php lua ex clj dart gd objc sh.
+# Fixture-only languages (no in-sample real repo): java kt swift cs php lua ex clj gleam dart gd objc sh.
 # Languages with NO fixture directory: none today. List one as "LANG<TAB>-" here, never leave it out.
 cpp	test/massfix
 cpp	test/cppqualfix
@@ -37,3 +37,4 @@ dart	test/dartfix
 kt	test/kotlinfix
 gd	test/gdscriptfix
 clj	test/clojurefix
+gleam	test/gleamfix

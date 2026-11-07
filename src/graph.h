@@ -11229,11 +11229,8 @@ inline Graph buildGraph( const IngestResult& ing, const ScipOverlay* scip = null
         bool canonical = false;
         if( !scipPinned && ( r.lang == Lang::Elixir || r.lang == Lang::Gleam ) )
         {
-            const GleamResolver::Miss gleamMiss = r.lang == Lang::Gleam ? gleamResolver.resolve( ing, r, cand ) : GleamResolver::Miss::None;
-            if( r.lang == Lang::Elixir )
-            {
-                elixirResolver.resolve( r, cand );
-            }
+            elixirResolver.resolve( r, cand );                                                // each lexical resolver answers its own
+            const GleamResolver::Miss gleamMiss = gleamResolver.resolve( ing, r, cand );       //   language's references, and no other's
             std::erase_if( cand, [ & ]( NodeId c ) { return !sameRoot( c, r.fileId ); } );
             if( cand.empty() && gleamMiss == GleamResolver::Miss::ExternalModule )
             {

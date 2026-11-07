@@ -70,9 +70,14 @@ struct GleamResolver
         }
     }
 
-    // The definitions `ref` names. A call never reaches a type: `Board(…)` constructs the constructor, not `type Board`.
+    // The definitions a Gleam `ref` names. A call never reaches a type: `Board(…)` constructs the constructor, not
+    // `type Board`. Another language's reference is not this resolver's: `out` is left as it is and nothing is missed.
     Miss resolve( const IngestResult& ing, const Reference& ref, std::vector<NodeId>& out ) const
     {
+        if( ref.lang != Lang::Gleam )
+        {
+            return Miss::None;
+        }
         out.clear();
         std::uint32_t file = ref.fileId;
         if( !ref.qualifier.empty() )

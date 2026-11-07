@@ -103,6 +103,8 @@ mkfix(){ # lang dir
            put "$d/b/b.rb" 'class B; def g; 1; end; end\n' ;;
     lua)   put "$d/a/a.lua" 'local b = require("b.b")\nreturn b.g()\n'
            put "$d/b/b.lua" 'local M = {}\nfunction M.g() return 1 end\nreturn M\n' ;;
+    gleam) put "$d/a/a.gleam" 'import b/b\n\npub fn f() {\n  b.g()\n}\n'
+           put "$d/b/b.gleam" 'pub fn g() {\n  1\n}\n' ;;
     ex)    put "$d/a/a.ex" 'defmodule A do\n  alias B.Thing\n  def f, do: Thing.g()\nend\n'
            put "$d/b/b.ex" 'defmodule B.Thing do\n  def g, do: 1\nend\n' ;;
     *) no "mkfix: unknown language $l" ;;
@@ -110,7 +112,7 @@ mkfix(){ # lang dir
 }
 
 NOEDGE="go java kt cs php swift dart gd clj"
-EDGED="py ts js cpp c rs sh rb lua ex objc"
+EDGED="py ts js cpp c rs sh rb lua ex gleam objc"
 
 # ── (A) one fixture per no-edge language ──────────────────────────────────────────────────────────────────
 for l in $NOEDGE; do
@@ -154,7 +156,7 @@ body=lint[lint.index('inline bool dependencyCapable( Lang lang )'):]
 head=body[:body.index('return true;')]; capable=set(re.findall(r'Lang::(\w+)',head))
 table=facts[facts.index('kLangFacts = { {'):]
 rows=re.findall(r'\{ \.lang = Lang::(\w+)(.*?) \},\n',table,re.S)
-assert len(rows)==25 and len(capable)==17,(len(rows),len(capable))
+assert len(rows)==26 and len(capable)==18,(len(rows),len(capable))
 for lang,rest in rows:
     m=re.search(r'\.fileEdges = FileEdges::(\w+)',rest); v=m[1] if m else 'Unmeasured'
     assert not (lang in capable and v=='NotApplicable'),lang

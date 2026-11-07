@@ -50,9 +50,16 @@ struct GleamNames
     };
     std::vector<Locals> locals;   // one row per top-level function, in source order (byte-sorted, disjoint)
 
+    bool active = false;   // a Gleam file: the table answers. Any other language's file leaves it empty and inert.
+
     // One pass over the file root's direct children: definitions are all top level, and so is every import.
-    void prepare( TSNode root, std::string_view src )
+    void prepare( Lang lang, TSNode root, std::string_view src )
     {
+        active = lang == Lang::Gleam;
+        if( !active )
+        {
+            return;
+        }
         const std::uint32_t count = ts_node_named_child_count( root );
         std::uint32_t runStart = 0;
         bool          inRun    = false;

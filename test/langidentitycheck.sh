@@ -49,7 +49,7 @@ set -u
 ROOT="$( cd "$( dirname "$0" )/.." && pwd )"
 DIR="$ROOT/test/langidentity"
 MANIFEST="$DIR/manifest.tsv"
-CODE_LANGS=( cpp py ts go rs swift objc js sh java rb cs c php lua ex dart kt gd clj )
+CODE_LANGS=( cpp py ts go rs swift objc js sh java rb cs c php lua ex dart kt gd clj gleam )
 fail=0
 ok(){ printf '  PASS  %s\n' "$*" || { fail=1; printf '  FAIL  could not write the PASS line for: %s\n' "$*"; }; return 0; }
 no(){ printf '  FAIL  %s\n' "$*"; fail=1; }
